@@ -3,11 +3,14 @@ You must modify `cfg.py` with your own parameters, they are self-explicit :
  - url for the server
  - your selection of layers
 
-Then launch the script with the correct parameters (as seen below)
+Then launch the script with the correct parameters (as seen below).
 
-Optionaly you could specify a wmts server and some levels of zoom if you want wmts tiles.
+Coordinates are specified in Lambert93.
 
 Please note that it's very crude, with no error checks..
+
+_(Optionaly you could specify a wmts server and some levels of zoom if you want wmts tiles.)_
+
 
 ## Requirements
 * Python 3
