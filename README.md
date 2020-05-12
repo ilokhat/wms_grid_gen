@@ -33,11 +33,14 @@ optional arguments:
   -n NBTILES, --nbtiles NBTILES
                         nb of tiles per line and column (square grid,
                         default=1)
+  -f FORMAT, --format FORMAT
+                        format of images, either 'jpeg' or 'png'
+                        (default='jpeg')
   -d DELTA, --delta DELTA
                         length of one square tile side (meters, default=3000)
   -o OUTPUT_DIR, --output_dir OUTPUT_DIR
                         output directory for images (default=.)
-  --wmts                generate wmst tiles for zoom level(s) and layer in
+  --wmts                generate wmts tiles for zoom level(s) and layer in
                         config file. discard all other options except -x -y
                         and -o
 

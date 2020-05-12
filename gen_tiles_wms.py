@@ -32,16 +32,16 @@ def build_envelopes(x0, y0, width, n):
     return envs
 
 
-def build_wms_tile(image_path, wms, env, layer, size=512):
+def build_wms_tile(image_path, wms, env, layer, size=512, im_format='jpeg'):
     LAYER = layer
     SRS = 'EPSG:2154'
     IMG_DIMS = (size, size)
-    img = wms.getmap(layers=[LAYER], srs=SRS, bbox=env, size=IMG_DIMS, format='image/jpeg')
+    img = wms.getmap(layers=[LAYER], srs=SRS, bbox=env, size=IMG_DIMS, format=f'image/{im_format}')
     out = open(image_path, 'wb')
     out.write(img.read())
     out.close()
 
-def build_wmst_tile(image_path, wmts, layer, x93, y93, zoom_level):
+def build_wmst_tile(image_path, wmts, layer, x93, y93, zoom_level, im_format='jpeg'):
     taille_tuile = ZOOM_RES_L93[zoom_level] * 256
     X0, Y0 = wmts.tilematrixsets['PM'].tilematrix['13'].topleftcorner
     proj = Transformer.from_crs(2154, 3857, always_xy=True)
@@ -51,7 +51,7 @@ def build_wmst_tile(image_path, wmts, layer, x93, y93, zoom_level):
     tilecol = int(x_g / taille_tuile)
     tilerow = int(y_g / taille_tuile)
     tile = wmts.gettile(layer=layer, tilematrixset='PM', tilematrix=f'{zoom_level}', 
-                            row=tilerow, column=tilecol, format="image/jpeg")
+                            row=tilerow, column=tilecol, format=f'image/{im_format}')
     out = open(image_path, 'wb')
     bytes_written = out.write(tile.read())
     out.close()
@@ -68,6 +68,8 @@ parser.add_argument("-y", "--yl93", help="lower left y L93 (default=6601459.5)",
 parser.add_argument(
     "-n", "--nbtiles", help="nb of tiles per line and column (square grid, default=1)", default=1, type=int)
 parser.add_argument(
+    "-f", "--format", help="format of images, either 'jpeg' or 'png' (default='jpeg')", default='jpeg', type=str)
+parser.add_argument(
     "-d", "--delta", help="length of one square tile side (meters, default=3000)", default=3000, type=int)
 parser.add_argument("-o", "--output_dir",
                     help="output directory for images (default=.)", default='.')
@@ -80,17 +82,19 @@ S = args.size
 X, Y = args.xl93, args.yl93
 N = args.nbtiles
 DELTA = args.delta
-output_dir = args.output_dir
+OUTPUT_DIR = args.output_dir
+FORMAT = args.format
 
 LAYERS = cfg.LAYERS
 SELECTION = cfg.WMS_SELECTION
 WMTS_LAYER = cfg.WMTS_LAYER
 
+extension = 'jpg' if FORMAT == 'jpeg' else 'png'
 
 if (args.wmts):
     wmts = WebMapTileService(cfg.WMTS_SERVER)
     for ZOOM_LEVEL in cfg.WMTS_LEVELS:
-        img = f"{output_dir}/{WMTS_LAYER['prefix']}_{ZOOM_LEVEL}.jpg"
+        img = f"{OUTPUT_DIR}/{WMTS_LAYER['prefix']}_{ZOOM_LEVEL}.{extension}"
         build_wmst_tile(img, wmts,
                         LAYERS[WMTS_LAYER['idx']], X, Y, ZOOM_LEVEL)
         print(img, 'written')
@@ -100,6 +104,6 @@ else:
     for i, env in enumerate(envs, start=1):
         print(f'{i}/{len(envs)}')
         for k, v in SELECTION.items():
-            img = f'{output_dir}/{v}_{i}.jpg'
-            build_wms_tile(img, wms, env, layer=LAYERS[k], size=S)
+            img = f'{OUTPUT_DIR}/{v}_{i}.{extension}'
+            build_wms_tile(img, wms, env, layer=LAYERS[k], size=S, im_format=FORMAT)
             print(img, 'written')
