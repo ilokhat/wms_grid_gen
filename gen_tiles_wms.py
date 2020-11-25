@@ -88,16 +88,17 @@ FORMAT = args.format
 LAYERS = cfg.LAYERS
 SELECTION = cfg.WMS_SELECTION
 WMTS_LAYER = cfg.WMTS_LAYER
+COORDS = cfg.COORDS
 
 extension = 'jpg' if FORMAT == 'jpeg' else 'png'
 
 if (args.wmts):
     wmts = WebMapTileService(cfg.WMTS_SERVER)
-    for ZOOM_LEVEL in cfg.WMTS_LEVELS:
-        img = f"{OUTPUT_DIR}/{WMTS_LAYER['prefix']}_{ZOOM_LEVEL}.{extension}"
-        build_wmst_tile(img, wmts,
-                        LAYERS[WMTS_LAYER['idx']], X, Y, ZOOM_LEVEL)
-        print(img, 'written')
+    for idx, c in enumerate(COORDS):
+        for ZOOM_LEVEL in cfg.WMTS_LEVELS:
+            img = f"{OUTPUT_DIR}/{idx}_{WMTS_LAYER['prefix']}_{ZOOM_LEVEL}.{extension}"
+            build_wmst_tile(img, wmts, LAYERS[WMTS_LAYER['idx']], c[0], c[1], ZOOM_LEVEL, im_format=FORMAT)
+            print(img, 'written')
 else:
     wms = WebMapService(cfg.WMS_SERVER, version='1.3.0')
     envs = build_envelopes(X, Y, DELTA, N)
