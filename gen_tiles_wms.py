@@ -73,6 +73,8 @@ parser.add_argument(
     "-d", "--delta", help="length of one square tile side (meters, default=3000)", default=3000, type=int)
 parser.add_argument("-o", "--output_dir",
                     help="output directory for images (default=.)", default='.')
+parser.add_argument("--centered", help="generate wms tiles centered around x, y for zoom level(s) and layer in config file. discard all other options except -o",
+                    action="store_true")
 parser.add_argument("--wmts", help="generate wmts tiles for zoom level(s) and layer in config file. discard all other options except -x -y and -o",
                     action="store_true")
 
@@ -92,13 +94,24 @@ COORDS = cfg.COORDS
 
 extension = 'jpg' if FORMAT == 'jpeg' else 'png'
 
-if (args.wmts):
+if args.wmts:
     wmts = WebMapTileService(cfg.WMTS_SERVER)
     for idx, c in enumerate(COORDS):
         for ZOOM_LEVEL in cfg.WMTS_LEVELS:
             img = f"{OUTPUT_DIR}/{idx}_{WMTS_LAYER['prefix']}_{ZOOM_LEVEL}.{extension}"
             build_wmst_tile(img, wmts, LAYERS[WMTS_LAYER['idx']], c[0], c[1], ZOOM_LEVEL, im_format=FORMAT)
             print(img, 'written')
+elif args.centered:
+    wms = WebMapService(cfg.WMS_SERVER, version='1.3.0')
+    for i, c in enumerate(COORDS):
+        for ZOOM_LEVEL in cfg.WMTS_LEVELS:
+            tile_length = int(ZOOM_RES_L93[ZOOM_LEVEL] * S)
+            x0, y0 = c[0] - tile_length/2, c[1] - tile_length/2
+            env = build_envelopes(x0, y0, tile_length, 1)[0]
+            for id, layer_prefix in SELECTION.items():
+                img = f'{OUTPUT_DIR}/c{i}_{layer_prefix}_zl_{ZOOM_LEVEL}.{extension}'
+                build_wms_tile(img, wms, env, layer=LAYERS[id], size=S, im_format=FORMAT)
+                print(img, 'written')
 else:
     wms = WebMapService(cfg.WMS_SERVER, version='1.3.0')
     envs = build_envelopes(X, Y, DELTA, N)
