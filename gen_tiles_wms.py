@@ -99,7 +99,7 @@ if args.wmts:
     wmts = WebMapTileService(cfg.WMTS_SERVER)
     for idx, c in enumerate(COORDS):
         for ZOOM_LEVEL in cfg.WMTS_LEVELS:
-            img = f"{OUTPUT_DIR}/{idx}_{WMTS_LAYER['prefix']}_{ZOOM_LEVEL}.{extension}"
+            img = f"{OUTPUT_DIR}/c{idx}_{WMTS_LAYER['prefix']}_zl_{ZOOM_LEVEL}.{extension}"
             build_wmst_tile(img, wmts, LAYERS[WMTS_LAYER['idx']], c[0], c[1], ZOOM_LEVEL, im_format=FORMAT)
             print(img, 'written')
 elif args.centered:
@@ -109,16 +109,16 @@ elif args.centered:
             tile_length = int(ZOOM_RES_L93[ZOOM_LEVEL] * S)
             x0, y0 = c[0] - tile_length/2, c[1] - tile_length/2
             env = build_envelopes(x0, y0, tile_length, 1)[0]
-            for id, layer_prefix in SELECTION.items():
+            for idx, layer_prefix in SELECTION.items():
                 img = f'{OUTPUT_DIR}/c{i}_{layer_prefix}_zl_{ZOOM_LEVEL}.{extension}'
-                build_wms_tile(img, wms, env, layer=LAYERS[id], size=S, im_format=FORMAT)
+                build_wms_tile(img, wms, env, layer=LAYERS[idx], size=S, im_format=FORMAT)
                 print(img, 'written')
 else:
     wms = WebMapService(cfg.WMS_SERVER, version='1.3.0')
     envs = build_envelopes(X, Y, DELTA, N)
     for i, env in enumerate(envs, start=1):
         print(f'{i}/{len(envs)}')
-        for k, v in SELECTION.items():
-            img = f'{OUTPUT_DIR}/{v}_{i}.{extension}'
-            build_wms_tile(img, wms, env, layer=LAYERS[k], size=S, im_format=FORMAT)
+        for idx, layer_prefix in SELECTION.items():
+            img = f'{OUTPUT_DIR}/{layer_prefix}_{i}.{extension}'
+            build_wms_tile(img, wms, env, layer=LAYERS[idx], size=S, im_format=FORMAT)
             print(img, 'written')

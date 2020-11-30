@@ -167,19 +167,16 @@ WMTS_LEVELS = [8, 9, 10]
 ### Getting tiles from a WMTS server, containing each coordinate and for the levels of zoom set in `cfg.py` for the layer specified.
 
 ```
-$ python gen_tiles_wms.py -x 923115.73 -y 6321563.12 -n 3 -o out_wmts --wmts
-out_wmts/0_classic_7.jpg written
-out_wmts/0_classic_8.jpg written
-out_wmts/0_classic_9.jpg written
-out_wmts/0_classic_10.jpg written
-out_wmts/1_classic_7.jpg written
-out_wmts/1_classic_8.jpg written
-out_wmts/1_classic_9.jpg written
-out_wmts/1_classic_10.jpg written
-out_wmts/2_classic_7.jpg written
-out_wmts/2_classic_8.jpg written
-out_wmts/2_classic_9.jpg written
-out_wmts/2_classic_10.jpg written
+$ python gen_tiles_wms.py -o out_wmts --wmts
+out_wmts/c0_classic_zl_10.jpg written
+out_wmts/c0_classic_zl_11.jpg written
+out_wmts/c0_classic_zl_12.jpg written
+out_wmts/c1_classic_zl_10.jpg written
+out_wmts/c1_classic_zl_11.jpg written
+out_wmts/c1_classic_zl_12.jpg written
+out_wmts/c2_classic_zl_10.jpg written
+out_wmts/c2_classic_zl_11.jpg written
+out_wmts/c2_classic_zl_12.jpg written
 ```
 
 The relevant section of `cfg.py` should look like this : 
