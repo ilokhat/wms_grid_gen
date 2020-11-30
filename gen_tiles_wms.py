@@ -74,7 +74,7 @@ parser.add_argument(
     "-d", "--delta", help="length of one square tile side (meters, default=3000)", default=3000, type=int)
 parser.add_argument("-o", "--output_dir",
                     help="output directory for images (default=.)", default='.')
-parser.add_argument("--centered", help="generate wms tiles centered around x, y for zoom level(s) and layer in config file. discard all other options except -o",
+parser.add_argument("--centered", help="generate wms tiles centered around x, y for zoom level(s) and layer in config file. discard all other options except -o and -s",
                     action="store_true")
 parser.add_argument("--wmts", help="generate wmts tiles for zoom level(s) and layer in config file. discard all other options except -x -y and -o",
                     action="store_true")
