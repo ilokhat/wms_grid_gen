@@ -44,6 +44,7 @@ def build_wms_tile(image_path, wms, env, layer, size=512, im_format='jpeg'):
 def build_wmst_tile(image_path, wmts, layer, x93, y93, zoom_level, im_format='jpeg'):
     taille_tuile = ZOOM_RES_L93[zoom_level] * 256
     X0, Y0 = wmts.tilematrixsets['PM'].tilematrix['13'].topleftcorner
+    #X0, Y0 = wmts.tilematrixsets['PM'].tilematrix[f'{zoom_level}'].topleftcorner
     proj = Transformer.from_crs(2154, 3857, always_xy=True)
     x_m, y_m = proj.transform(x93, y93)
     x_g = x_m - X0
