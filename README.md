@@ -39,7 +39,8 @@ optional arguments:
                         output directory for images (default=.)
   --centered            generate wms tiles centered around x, y for zoom level(s) and layer in config file. discard all other options except -o and -s
   --wmts                generate wmts tiles for zoom level(s) and layer in config file. discard all other options except -x -y and -o
-```
+  --wld                 creates .wld file to georeference each tile (for wms only)
+  ```
 ![Grid](./grid.png)
 
 

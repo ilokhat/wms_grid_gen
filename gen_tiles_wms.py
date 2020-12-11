@@ -31,6 +31,17 @@ def build_envelopes(x0, y0, width, n):
             envs.append(env)
     return envs
 
+def build_wld_header_for_env(pixel_size, env):
+    # coordinates of the center of upper left pixel
+    ul_x, ul_y = env[0] + pixel_size / 2, env[3] - pixel_size / 2
+    header = f'{pixel_size}\n0\n0\n{-pixel_size}\n{ul_x}\n{ul_y}'
+    return header
+
+def write_wld_file(pixel_size, env, wld_path):
+    wld = build_wld_header_for_env(pixel_size, env)
+    with open(wld_path, 'w') as out_wld:
+        out_wld.write(wld)
+        out_wld.close()
 
 def build_wms_tile(image_path, wms, env, layer, size=512, im_format='jpeg'):
     LAYER = layer
@@ -80,6 +91,8 @@ parser.add_argument("--centered", help="generate wms tiles centered around x, y 
                     action="store_true")
 parser.add_argument("--wmts", help="generate wmts tiles for zoom level(s) and layer in config file. discard all other options except -x -y and -o",
                     action="store_true")
+parser.add_argument("--wld", help="creates .wld file to georeference each tile (for wms only)",
+                    action="store_true")
 
 args = parser.parse_args()
 
@@ -111,16 +124,26 @@ elif args.centered:
             tile_length = int(ZOOM_RES_L93[ZOOM_LEVEL] * S)
             x0, y0 = c[0] - tile_length/2, c[1] - tile_length/2
             env = build_envelopes(x0, y0, tile_length, 1)[0]
+            PIXEL_SIZE = tile_length / S
             for idx, layer_prefix in SELECTION.items():
-                img = f'{OUTPUT_DIR}/c{i}_{layer_prefix}_zl_{ZOOM_LEVEL}.{extension}'
-                build_wms_tile(img, wms, env, layer=LAYERS[idx], size=S, im_format=FORMAT)
+                img = f'{OUTPUT_DIR}/c{i}_{layer_prefix}_zl_{ZOOM_LEVEL}'
+                img_path = f'{img}.{extension}'
+                build_wms_tile(img_path, wms, env, layer=LAYERS[idx], size=S, im_format=FORMAT)
+                if args.wld:
+                    wld_path = f'{img}.wld'
+                    write_wld_file(PIXEL_SIZE, env, wld_path)
                 print(img, 'written')
 else:
     wms = WebMapService(cfg.WMS_SERVER, version='1.3.0')
     envs = build_envelopes(X, Y, DELTA, N)
+    PIXEL_SIZE = DELTA / S
     for i, env in enumerate(envs, start=1):
         print(f'{i}/{len(envs)}')
         for idx, layer_prefix in SELECTION.items():
-            img = f'{OUTPUT_DIR}/{layer_prefix}_{i}.{extension}'
-            build_wms_tile(img, wms, env, layer=LAYERS[idx], size=S, im_format=FORMAT)
-            print(img, 'written')
+            img = f'{OUTPUT_DIR}/{layer_prefix}_{i}'
+            img_path = f'{img}.{extension}'
+            build_wms_tile(img_path, wms, env, layer=LAYERS[idx], size=S, im_format=FORMAT)
+            if args.wld:
+                wld_path = f'{img}.wld'
+                write_wld_file(PIXEL_SIZE, env, wld_path)
+            print(img_path, 'written')
