@@ -37,6 +37,7 @@ def build_wms_tile(image_path, wms, env, layer, size=512, im_format='jpeg'):
     SRS = 'EPSG:2154'
     IMG_DIMS = (size, size)
     img = wms.getmap(layers=[LAYER], srs=SRS, bbox=env, size=IMG_DIMS, format=f'image/{im_format}')
+    #img = wms.getmap(layers=[LAYER], srs=SRS, bbox=env, size=IMG_DIMS, format=f'image/geotiff')
     out = open(image_path, 'wb')
     out.write(img.read())
     out.close()
@@ -51,6 +52,7 @@ def build_wmst_tile(image_path, wmts, layer, x93, y93, zoom_level, im_format='jp
     y_g = Y0 - y_m 
     tilecol = int(x_g / taille_tuile)
     tilerow = int(y_g / taille_tuile)
+    imf = f'image/geotiff'
     tile = wmts.gettile(layer=layer, tilematrixset='PM', tilematrix=f'{zoom_level}', 
                             row=tilerow, column=tilecol, format=f'image/{im_format}')
     out = open(image_path, 'wb')
@@ -69,7 +71,7 @@ parser.add_argument("-y", "--yl93", help="lower left y L93 (default=6601459.5)",
 parser.add_argument(
     "-n", "--nbtiles", help="nb of tiles per line and column (square grid, default=1)", default=1, type=int)
 parser.add_argument(
-    "-f", "--format", help="format of images, either 'jpeg' or 'png' (default='jpeg')", default='jpeg', type=str)
+    "-f", "--format", help="format of images, 'jpeg', 'png' or 'geotiff' (default='jpeg')", default='jpeg', type=str)
 parser.add_argument(
     "-d", "--delta", help="length of one square tile side (meters, default=3000)", default=3000, type=int)
 parser.add_argument("-o", "--output_dir",
@@ -93,7 +95,7 @@ SELECTION = cfg.WMS_SELECTION
 WMTS_LAYER = cfg.WMTS_LAYER
 COORDS = cfg.COORDS
 
-extension = 'jpg' if FORMAT == 'jpeg' else 'png'
+extension = 'png' if FORMAT == 'png' else 'tiff' if FORMAT == 'geotiff' else 'jpg'
 
 if args.wmts:
     wmts = WebMapTileService(cfg.WMTS_SERVER)
